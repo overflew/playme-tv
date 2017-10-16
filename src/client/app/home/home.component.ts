@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { NameListService } from '../shared/name-list/name-list.service';
+import { AudioZoneService } from '../playme/audio-zone.service';
+import { Observable } from 'rxjs/Observable';
+import { IAudioZone } from '../playme/IAudioZone';
+import { SignalRService } from '../playme/signalr.service';
+import { IQueuedTrack } from '../playme/models/IQueuedTrack';
 
 /**
  * This class represents the lazy loaded HomeComponent.
@@ -16,19 +21,35 @@ export class HomeComponent implements OnInit {
   errorMessage: string;
   names: any[] = [];
 
+  audioZones$: Observable<IAudioZone[]>;
+  currentAudioZone$: Observable<IAudioZone>;
+
+  currentTrack$: Observable<IQueuedTrack>;
+
   /**
    * Creates an instance of the HomeComponent with the injected
    * NameListService.
    *
    * @param {NameListService} nameListService - The injected NameListService.
    */
-  constructor(public nameListService: NameListService) {}
+  constructor(
+    public nameListService: NameListService,
+    private _audioZoneService: AudioZoneService,
+    private _signalrService: SignalRService
+  ) {}
 
   /**
    * Get the names OnInit
    */
   ngOnInit() {
     this.getNames();
+
+    this.audioZones$ = this._audioZoneService.getAllZones();
+    this.currentAudioZone$ = this._audioZoneService.getCurrentZone();
+
+    this._signalrService.initializeHub(this._audioZoneService.getCurrentZoneSnapshot().path);
+
+    this.currentTrack$ = this._signalrService.getNowPlaying();
   }
 
   /**
