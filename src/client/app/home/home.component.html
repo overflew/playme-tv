@@ -2,13 +2,20 @@
   Current: {{ (currentAudioZone$ | async ).name }}
 </p>
 
-<ul>
-  <li *ngFor="let audioZone of (audioZones$ | async)">
+<select
+  [(ngModel)]="selectedAudioZone">
+  <option
+    *ngFor="let audioZone of (audioZones$ | async)"
+    [ngValue]="audioZone">
     {{ audioZone.name }}
-  </li>
-</ul>
+  </option>
+</select>
 
 <div>
   <h3>Now playing</h3>
   {{ (currentTrack | async)?.Track.Name }}
 </div>
+
+<giphy-image-view>
+  
+</giphy-image-view>

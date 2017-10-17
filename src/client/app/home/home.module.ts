@@ -4,12 +4,14 @@ import { HomeRoutingModule } from './home-routing.module';
 import { SharedModule } from '../shared/shared.module';
 import { NameListService } from '../shared/name-list/name-list.service';
 import { PlayMeModule } from '../playme/playme.module';
+import { GiphyModule } from '../display-plugins/giphy/giphy.module';
 
 @NgModule({
   imports: [
     HomeRoutingModule, 
     SharedModule,
-    PlayMeModule
+    PlayMeModule,
+    GiphyModule
   ],
   declarations: [HomeComponent],
   exports: [HomeComponent],

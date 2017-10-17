@@ -1,0 +1,14 @@
+<h3>Giphy image view</h3>
+
+<div>
+    <picture>
+        <source
+            *ngIf="currentImage?.webp"
+            [srcset]="currentImage?.webp" 
+            type="image/webp">
+        <img 
+            *ngIf="currentImage?.url"
+            [src]="currentImage?.url" 
+            alt="Alt Text!">
+    </picture>
+</div>

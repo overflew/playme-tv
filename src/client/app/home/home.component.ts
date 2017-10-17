@@ -23,7 +23,8 @@ export class HomeComponent implements OnInit {
 
   audioZones$: Observable<IAudioZone[]>;
   currentAudioZone$: Observable<IAudioZone>;
-
+  selectedAudioZone: IAudioZone;
+  
   currentTrack$: Observable<IQueuedTrack>;
 
   /**
@@ -46,6 +47,10 @@ export class HomeComponent implements OnInit {
 
     this.audioZones$ = this._audioZoneService.getAllZones();
     this.currentAudioZone$ = this._audioZoneService.getCurrentZone();
+
+    this.currentAudioZone$.subscribe(s => {
+      this.selectedAudioZone = s;
+    });
 
     this._signalrService.initializeHub(this._audioZoneService.getCurrentZoneSnapshot().path);
 
