@@ -1,7 +1,7 @@
 import { Injectable, ChangeDetectorRef, ApplicationRef } from "@angular/core";
 import { GiphyApiService } from "./giphy-api.service";
 import { Observable } from "rxjs/Observable";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import { SignalRService } from "../../playme/signalr.service";
 import { IQueuedTrack } from "../../playme/models/index";
 
@@ -12,8 +12,10 @@ export class GiphyFunService {
 
     public currentImage: string;
 
-    private _imageIndex = 0;
-    private _searchResults: any;
+    // private _imageIndex = 0;
+    private _searchResults: any = [];
+
+    private isLoading$ = new BehaviorSubject(false);
 
     // public currentlyPlaying$: Observable<IQueuedTrack>;
 
@@ -40,34 +42,61 @@ export class GiphyFunService {
     }
 
     public updatePlayingTrack(track: IQueuedTrack) {
-        // Search by track name:
-        // this._giphyApiService.searchGifs(track.Track.Name).subscribe(result => {
-        //     this._searchResults = result.json();
-        // });
+        this._resetResults();
 
-        // Search by artist:
-        this._giphyApiService.searchGifs(track.Track.Artists[0].Name).subscribe(result => {
-            this._searchResults = result.json();
+        this._searchFor(track.Track.Name);
+        track.Track.Artists.forEach(artist => {
+            this._searchFor(artist.Name);            
+        });
+    }
+    
+    private _resetResults () {
+        this.isLoading$.next(true);
+        this._searchResults = [];
+    }
+
+    private _searchFor(searchTerm: string) {
+        this._giphyApiService.searchGifs(searchTerm).subscribe(result => {
+            this.addGiphyResults(result.json(), searchTerm);
         });
     }
 
-
-    private resetImages () {
-        this.setImageIndex(0);
+    private addGiphyResults(results: any, searchTerm: string) {
+        if (!results.data.length) {
+            // TODO: Do something smarter with empty result sets (to avoid hanging on a loading screen...)
+            return;
+        }
+        this._searchResults.push(new GiphyResults(results, searchTerm));
+        this.isLoading$.next(false);
     }
 
-    private setImageIndex(i: number) {
-        this._imageIndex = i;
-        let image = this._searchResults.data[this._imageIndex];
-        this.currentImage = image.images.original;
-    }
+    // private resetImages () {
+    //     this.setImageIndex(0);
+    // }
     
     public moveNextImage (): void {
-        let newIndex = this._imageIndex + 1;
-        if (this._imageIndex >= this._searchResults.data.length - 1) {
+        if (!this._searchResults.length) {
+            return;
+        }
+
+        let resultIndexToUse = Math.floor(Math.random() * this._searchResults.length)
+
+        this.useNextImageFrom(this._searchResults[resultIndexToUse]);
+    }
+
+    public useNextImageFrom (resultSet: GiphyResults): void {
+        let newIndex = resultSet.currentIndex + 1;
+        if (resultSet.currentIndex >= resultSet.results.data.length - 1) {
             newIndex = 0;            
         }
-        this.setImageIndex(newIndex);
+        resultSet.currentIndex = newIndex;
+        
+        this.setCurrentImage(resultSet);
+    }
+
+    private setCurrentImage(resultSet: GiphyResults) {
+        let image = resultSet.results.data[resultSet.currentIndex];
+        this.currentImage = image.images.original;
     }
 
 }
@@ -75,4 +104,15 @@ export class GiphyFunService {
 export interface IGiphyDisplayState {
     isLoading: boolean;
     currentImage: string;
+}
+
+export class GiphyResults {
+    public currentIndex = 0;
+
+    constructor(
+        public results: any,
+        public searchTerm: string
+    ) { 
+        
+    }
 }

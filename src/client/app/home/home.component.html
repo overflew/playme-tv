@@ -14,9 +14,14 @@
 <div
   *ngIf="(currentTrack$ | async) as currentTrack">
   <h3>Now playing</h3>
-  {{ currentTrack.Track.Name }},
-  {{ currentTrack.Track.Artists[0].Name }},
-  {{ currentTrack.Track.Album.Name }}
+  <p>Track: {{ currentTrack.Track.Name }}</p>
+  <p
+    *ngFor="let artist of currentTrack.Track.Artists">
+    Artist: {{ artist.Name }}
+  </p>
+  <p>
+    Album: {{ currentTrack.Track.Album.Name }}
+  </p>
 </div>
 
 <giphy-image-view>
