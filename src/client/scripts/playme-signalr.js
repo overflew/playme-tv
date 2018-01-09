@@ -133,7 +133,7 @@
         return proxies;
     };
 
-    signalR.hub = $.hubConnection("http://music.trademe.local/sst/2/signalr", { useDefaultPath: false });
+    signalR.hub = $.hubConnection("http://localhost/signalr", { useDefaultPath: false  });
     $.extend(signalR, signalR.hub.createHubProxies());
 
 }(window.jQuery, window));

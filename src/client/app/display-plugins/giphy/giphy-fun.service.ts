@@ -2,6 +2,8 @@ import { Injectable, ChangeDetectorRef, ApplicationRef } from "@angular/core";
 import { GiphyApiService } from "./giphy-api.service";
 import { Observable } from "rxjs/Observable";
 import { BehaviorSubject } from "rxjs";
+import { SignalRService } from "../../playme/signalr.service";
+import { IQueuedTrack } from "../../playme/models/index";
 
 @Injectable()
 export class GiphyFunService {
@@ -13,9 +15,12 @@ export class GiphyFunService {
     private _imageIndex = 0;
     private _searchResults: any;
 
+    // public currentlyPlaying$: Observable<IQueuedTrack>;
+
     constructor(
         private _giphyApiService: GiphyApiService,
-        private _applicationRef: ApplicationRef
+        private _applicationRef: ApplicationRef,
+        private _signalRService: SignalRService
     ) {
         // TODO: Why does this give a stupid runtime error?
         // this._currentState = new BehaviorSubject<IGiphyDisplayState>({
@@ -25,16 +30,25 @@ export class GiphyFunService {
 
         this.currentImage = '';
 
-        this._giphyApiService.searchGifs('I\'d Rather Go Blind').subscribe(result => {
-            this._searchResults = result.json();
-
-        });
+        // this.currentlyPlaying$ = this._signalRService.getNowPlaying();
     }
 
     public get currentState(): Observable<IGiphyDisplayState> {
         // return this._currentState.asObservable();
         //this._applicationRef.
         return null;
+    }
+
+    public updatePlayingTrack(track: IQueuedTrack) {
+        // Search by track name:
+        // this._giphyApiService.searchGifs(track.Track.Name).subscribe(result => {
+        //     this._searchResults = result.json();
+        // });
+
+        // Search by artist:
+        this._giphyApiService.searchGifs(track.Track.Artists[0].Name).subscribe(result => {
+            this._searchResults = result.json();
+        });
     }
 
 

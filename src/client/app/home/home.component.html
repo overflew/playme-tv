@@ -11,9 +11,12 @@
   </option>
 </select>
 
-<div>
+<div
+  *ngIf="(currentTrack$ | async) as currentTrack">
   <h3>Now playing</h3>
-  {{ (currentTrack | async)?.Track.Name }}
+  {{ currentTrack.Track.Name }},
+  {{ currentTrack.Track.Artists[0].Name }},
+  {{ currentTrack.Track.Album.Name }}
 </div>
 
 <giphy-image-view>
